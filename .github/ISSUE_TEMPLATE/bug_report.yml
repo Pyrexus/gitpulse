@@ -1,0 +1,33 @@
+name: 🐛 Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Add integration…\n2. Push to main…"
+    validations:
+      required: true
+  - type: dropdown
+    id: event
+    attributes:
+      label: Related event
+      options: [Not event-related, Issues, Comments, Pull requests, Reviews, Pushes, Workflows, Releases, APK uploads, Stats, Login]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "Relevant log lines (tokens are redacted automatically — double-check anyway)."
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: GitPulse version / commit
