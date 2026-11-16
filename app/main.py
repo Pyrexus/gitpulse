@@ -26,6 +26,7 @@ from app.log import get_logger, setup_logging
 from app.security.crypto import SecretBox
 from app.security.signing import CallbackSigner
 from app.services.artifacts import ArtifactService
+from app.services.hook_sync import sync_hook_urls
 from app.telegram.sender import Sender
 from app.web.server import build_web_app
 from app.workers.processor import Processor
@@ -121,6 +122,7 @@ async def run() -> None:
         await bot.delete_webhook(drop_pending_updates=False)
 
     await queue.start()
+    sync_task = asyncio.create_task(sync_hook_urls(ctx))
     runner = web.AppRunner(app, access_log=None)
     await runner.setup()
     await web.TCPSite(runner, settings.host, settings.port).start()
@@ -145,6 +147,7 @@ async def run() -> None:
         if polling:
             await dp.stop_polling()
             polling.cancel()
+        sync_task.cancel()
         await processor.shutdown()
         await queue.stop()
         await runner.cleanup()
