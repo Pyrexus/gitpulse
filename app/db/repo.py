@@ -69,6 +69,17 @@ async def count_chat_integrations(s: AsyncSession, chat_id: int) -> int:
     return int(res.scalar_one())
 
 
+async def owned_elsewhere(s: AsyncSession, user_id: int, chat_id: int) -> Sequence[Integration]:
+    """Integrations a user owns in other chats (channels/groups managed from private chat)."""
+    res = await s.execute(
+        select(Integration)
+        .where(Integration.owner_id == user_id, Integration.chat_id != chat_id)
+        .options(selectinload(Integration.owner), selectinload(Integration.chat))
+        .order_by(Integration.created_at)
+    )
+    return res.scalars().all()
+
+
 async def get_integration(s: AsyncSession, integration_id: int) -> Integration | None:
     res = await s.execute(
         select(Integration)

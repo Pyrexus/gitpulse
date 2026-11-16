@@ -149,6 +149,23 @@ def notice(keys: Keys, text: str, back: str = A.HOME, *args: object) -> Panel:
     return text, keys.markup([keys.back(back, *args)])
 
 
+def need_login(keys: Keys, private: bool, deep_link: str) -> Panel:
+    button = (
+        keys.cb("🔑 Login with PAT", A.LOGIN, style="success")
+        if private
+        else keys.url("🔑 Login (private chat)", deep_link, style="success")
+    )
+    return (
+        "🔒 <b>Log in first</b>\n\nAdding integrations uses <b>your</b> GitHub token to create "
+        "the webhook — it takes ten seconds.",
+        keys.markup([button], [keys.back()]),
+    )
+
+
+def loading(text: str = "⏳ <i>Loading…</i>") -> Panel:
+    return text, InlineKeyboardMarkup(inline_keyboard=[])
+
+
 # ── login ─────────────────────────────────────────────────────────────────────
 
 
@@ -353,25 +370,37 @@ def manual_setup(keys: Keys, integ: Integration, url: str, secret: str) -> Panel
 # ── integrations ──────────────────────────────────────────────────────────────
 
 
-def integrations_list(keys: Keys, integrations: Sequence[Integration], chat_label: str) -> Panel:
-    lines = [f"📋 <b>Integrations</b> · {esc(chat_label)}", ""]
-    if not integrations:
+def integrations_list(
+    keys: Keys,
+    items: Sequence[tuple[Integration, str | None]],
+    chat_label: str,
+    banner: str | None = None,
+) -> Panel:
+    """``items`` = (integration, where) — ``where`` labels integrations living in other chats."""
+    lines = [banner, ""] if banner else []
+    lines += [f"📋 <b>Integrations</b> · {esc(chat_label)}", ""]
+    if not items:
         lines.append("<i>Nothing connected yet. Tap ➕ to add your first repo.</i>")
-    for integ in integrations:
+    for integ, where in items:
         dot, status = _health(integ)
         kind = " <i>(org)</i>" if integ.kind == "org" else ""
+        place = f" → {esc(where)}" if where else ""
         lines.append(
-            f"{dot} {_target_link(integ)}{kind} · {_enabled_count(integ)}/{len(EVENT_TOGGLES)} events"
+            f"{dot} {_target_link(integ)}{kind}{place}\n"
+            f"      {_enabled_count(integ)}/{len(EVENT_TOGGLES)} events"
             f"{' · 🔕' if integ.quiet else ''} · {status}"
         )
     rows = [
-        [keys.cb(f"{'🏢' if i.kind == 'org' else '📦'} {i.target}", A.OPEN, i.id)] for i in integrations[:20]
+        [keys.cb(f"{'🏢' if i.kind == 'org' else '📦'} {i.target}" + (f" → {w}" if w else ""), A.OPEN, i.id)]
+        for i, w in items[:20]
     ]
     rows.append([keys.cb("➕ Add", A.ADD, 0, "r", style="primary"), keys.back()])
     return "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def integration_detail(keys: Keys, integ: Integration, banner: str | None = None) -> Panel:
+def integration_detail(
+    keys: Keys, integ: Integration, banner: str | None = None, where: str | None = None
+) -> Panel:
     dot, status = _health(integ)
     owner = integ.owner.github_login if integ.owner else None
     branches = parse_branch_filter(integ.branch_filter)
@@ -384,6 +413,7 @@ def integration_detail(keys: Keys, integ: Integration, banner: str | None = None
         + (f" · added by @{esc(owner)}" if owner else "")
         + f" · {ago(integ.created_at)}</i>",
         "",
+        *([f"📍 Posting to <b>{esc(where)}</b>"] if where else []),
         f"{dot} Webhook {'managed' if integ.hook_id else 'manual'} · {status}",
         f"🌿 Push branches: {code(', '.join(branches)) if branches else '<b>all</b>'}",
         f"{'🔕 Quiet mode: <b>on</b> (silent notifications)' if integ.quiet else '🔔 Notifications: <b>on</b>'}",
