@@ -1,0 +1,71 @@
+[project]
+name = "gitpulse"
+version = "0.1.0"
+description = "Fast, beautiful GitHub notifications for Telegram — issues, PRs, pushes, CI and APKs, right in your chat."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "GitPulse contributors" }]
+dependencies = [
+    "aiogram~=3.32",
+    "aiohttp>=3.14",
+    "httpx>=0.28",
+    "sqlalchemy[asyncio]>=2.1",
+    "asyncpg>=0.32",
+    "alembic>=1.20",
+    "pydantic>=2.14",
+    "pydantic-settings>=2.16",
+    "cryptography>=50",
+    "structlog>=26.1",
+    "markdown-it-py>=4.3",
+    "mdit-py-plugins>=0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.17",
+    "mypy>=2.4",
+    "pytest>=9.2",
+    "pytest-asyncio>=1.5",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "ASYNC", "RUF", "S", "C4", "PIE", "RET"]
+ignore = [
+    "S101",   # asserts are fine in tests
+    "S311",   # random is not used for crypto
+    "RUF001", # emoji / unicode in strings is intentional
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "B011"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+exclude = ["migrations/versions", "build"]
+
+[[tool.mypy.overrides]]
+module = ["mdit_py_plugins.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-q"
