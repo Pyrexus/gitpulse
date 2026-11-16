@@ -256,9 +256,9 @@ def picker(
     if pages > 1:
         rows.append(
             [
-                keys.cb("‹ Prev", A.ADD, max(page - 1, 0), scope) if page > 0 else keys.cb(" ", A.NOOP),
+                keys.cb("‹ Prev", A.ADD, max(page - 1, 0), scope) if page > 0 else keys.cb("·", A.NOOP),
                 keys.cb(f"{page + 1}/{pages}", A.NOOP),
-                keys.cb("Next ›", A.ADD, page + 1, scope) if page < pages - 1 else keys.cb(" ", A.NOOP),
+                keys.cb("Next ›", A.ADD, page + 1, scope) if page < pages - 1 else keys.cb("·", A.NOOP),
             ]
         )
     search_row = [keys.cb("🔍 Search", A.SEARCH, scope)]
