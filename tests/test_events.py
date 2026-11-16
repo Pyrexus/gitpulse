@@ -72,7 +72,10 @@ def test_long_issue_body_is_expandable_and_fits() -> None:
 def test_code_block_outside_quote() -> None:
     body = "Steps:\n\n```kotlin\nval x = 1\n```\n\nThanks"
     r = valid(render_issue({"action": "opened", "issue": issue(body=body), "repository": REPO}))
-    assert '</blockquote>\n<pre><code class="language-kotlin">val x = 1</code></pre>\n<blockquote>' in r.text
+    assert (
+        '</blockquote>\n<pre><code class="language-kotlin">val x = 1</code></pre>\n<blockquote>'
+        in r.text
+    )
 
 
 def test_empty_body() -> None:
@@ -150,7 +153,14 @@ def test_issue_comment_on_pr() -> None:
 def test_review_with_inline_comments() -> None:
     review = {"state": "changes_requested", "body": "Please fix", "user": BOB, "html_url": "u"}
     comments = [
-        {"path": f"src/f{i}.kt", "line": i + 1, "body": f"c{i}", "html_url": "u", "user": BOB, "id": i}
+        {
+            "path": f"src/f{i}.kt",
+            "line": i + 1,
+            "body": f"c{i}",
+            "html_url": "u",
+            "user": BOB,
+            "id": i,
+        }
         for i in range(10)
     ]
     r = valid(render_review_batch(review, comments, {"pull_request": pr(), "repository": REPO}))
@@ -186,7 +196,9 @@ def test_push_grouped_format() -> None:
     assert lines[0].startswith("🔨 <b>3 new commits</b> to ")
     assert ">LastWave-Native</a>:<a " in lines[0] and ">main</a>" in lines[0]
     assert ">abc1234</a> Fix crash on start — <i>" in r.text
-    assert "🔀 Merge <a href=\"https://github.com/lastwave/LastWave-Native/pull/12\">#12</a>" in r.text
+    assert (
+        '🔀 Merge <a href="https://github.com/lastwave/LastWave-Native/pull/12">#12</a>' in r.text
+    )
     assert '(<a href="https://github.com/lastwave/LastWave-Native/pull/7">#7</a>)' in r.text
     assert "<i>Ghost</i>" in r.text
     assert "long body" not in r.text
@@ -238,7 +250,9 @@ def test_workflow_success_with_apk() -> None:
 
 def test_workflow_failure_on_pr() -> None:
     r = valid(
-        render_workflow_run(workflow_run("failure", pull_requests=[{"number": 12}], event="pull_request"))
+        render_workflow_run(
+            workflow_run("failure", pull_requests=[{"number": 12}], event="pull_request")
+        )
     )
     assert r.text.startswith("❌ <b>Android CI failed</b>")
     assert "PR #12" in r.text
@@ -259,7 +273,11 @@ def _release(**kw: object) -> dict[str, object]:
         "prerelease": False,
         "body": "## What's new\n- Offline mode",
         "assets": [
-            {"name": "app-release.apk", "size": 12_900_000, "browser_download_url": "https://dl/app.apk"},
+            {
+                "name": "app-release.apk",
+                "size": 12_900_000,
+                "browser_download_url": "https://dl/app.apk",
+            },
             {"name": "mapping.txt", "size": 1000, "browser_download_url": "https://dl/m.txt"},
         ],
     }

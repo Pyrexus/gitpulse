@@ -28,7 +28,12 @@ from app.log import get_logger
 log = get_logger(__name__)
 T = TypeVar("T")
 
-_GONE_MARKERS = ("chat not found", "bot was kicked", "group chat was deactivated", "user is deactivated")
+_GONE_MARKERS = (
+    "chat not found",
+    "bot was kicked",
+    "group chat was deactivated",
+    "user is deactivated",
+)
 
 
 class ChatUnavailable(Exception):
@@ -79,9 +84,7 @@ class Sender:
     def forget(self, chat_id: int) -> None:
         self._gone.discard(chat_id)
 
-    async def call(
-        self, chat_id: int, factory: Callable[[], Awaitable[T]], retries: int = 5
-    ) -> T:
+    async def call(self, chat_id: int, factory: Callable[[], Awaitable[T]], retries: int = 5) -> T:
         """Run ``factory()`` (a Telegram API call) under the chat's rate limits."""
         if chat_id in self._gone:
             raise ChatUnavailable(chat_id)
@@ -123,5 +126,5 @@ class Sender:
         log.info("chat_unavailable", chat_id=chat_id, reason=reason[:120])
         try:
             await self._on_gone(chat_id)
-        except Exception:  # noqa: BLE001 - never let bookkeeping break delivery
+        except Exception:
             log.exception("on_gone_failed", chat_id=chat_id)

@@ -73,7 +73,7 @@ def test_lists_nested_and_tasks() -> None:
 def test_fenced_code_becomes_separate_segment() -> None:
     segs = markdown_to_segments("before\n\n```py\nprint('<x>')\n```\n\nafter", CTX)
     assert [s.kind for s in segs] == ["text", "code", "text"]
-    assert segs[1].html == '<pre><code class="language-py">print(\'&lt;x&gt;\')</code></pre>'
+    assert segs[1].html == "<pre><code class=\"language-py\">print('&lt;x&gt;')</code></pre>"
     assert segs[1].lang == "py"
 
 
@@ -120,7 +120,7 @@ def test_template_noise_removed() -> None:
     out = html(md)
     assert "Logs" not in out
     assert "No response" not in out
-    assert "<b>Version</b>\n\n1.2.3" == out
+    assert out == "<b>Version</b>\n\n1.2.3"
 
 
 def test_images_dropped_or_linked() -> None:
@@ -148,7 +148,9 @@ def test_unsafe_links_never_linked() -> None:
 
 
 def test_relative_links_absolutized() -> None:
-    assert html("[f](/o/r/blob/main/a.py)") == '<a href="https://github.com/o/r/blob/main/a.py">f</a>'
+    assert (
+        html("[f](/o/r/blob/main/a.py)") == '<a href="https://github.com/o/r/blob/main/a.py">f</a>'
+    )
 
 
 def test_emoji_shortcodes() -> None:

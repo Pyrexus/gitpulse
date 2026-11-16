@@ -49,7 +49,12 @@ async def handle_pending(message: Message, ctx: AppContext, pending: PendingInpu
     if pending.kind == "pat":
         await safe_delete(ctx, chat.id, message.message_id)  # first, always
         if not TOKEN_RE.match(text):
-            await show(ctx, chat.id, panel, panels.login_prompt(ctx.keys, "That doesn't look like a GitHub token."))
+            await show(
+                ctx,
+                chat.id,
+                panel,
+                panels.login_prompt(ctx.keys, "That doesn't look like a GitHub token."),
+            )
             return
         await show(ctx, chat.id, panel, panels.loading("🔐 <i>Verifying your token…</i>"))
         try:
@@ -66,7 +71,9 @@ async def handle_pending(message: Message, ctx: AppContext, pending: PendingInpu
         scope = str(pending.data.get("scope") or "r")
         await set_query(ctx, chat.id, uid, scope, text[:40] or None)
         await clear_pending(ctx, uid, chat.id)
-        await show(ctx, chat.id, panel, await render_picker(ctx, chat.id, uid, chat_label(chat), scope, 0))
+        await show(
+            ctx, chat.id, panel, await render_picker(ctx, chat.id, uid, chat_label(chat), scope, 0)
+        )
         return
 
     if pending.kind == "branch":
@@ -82,8 +89,17 @@ async def handle_pending(message: Message, ctx: AppContext, pending: PendingInpu
         if any(p.lower() in {"all", "*"} for p in parts) or not parts:
             value = None
         elif len(raw) > 255 or not all(_BRANCH_RE.match(p) for p in parts):
-            await show(ctx, chat.id, panel, panels.branch_prompt(
-                ctx.keys, integ, not is_private(chat), "Use branch names or globs like <code>release/*</code>."))
+            await show(
+                ctx,
+                chat.id,
+                panel,
+                panels.branch_prompt(
+                    ctx.keys,
+                    integ,
+                    not is_private(chat),
+                    "Use branch names or globs like <code>release/*</code>.",
+                ),
+            )
             return
         else:
             value = ", ".join(parts)
@@ -96,8 +112,12 @@ async def handle_pending(message: Message, ctx: AppContext, pending: PendingInpu
             integ = await db.get_integration(s, iid)
         if integ:
             where = None if integ.chat_id == chat.id else (integ.chat.title or "another chat")
-            banner = f"🌿 Push filter set to <code>{esc(value)}</code>." if value else "🌿 All branches."
-            await show(ctx, chat.id, panel, panels.integration_detail(ctx.keys, integ, banner, where))
+            banner = (
+                f"🌿 Push filter set to <code>{esc(value)}</code>." if value else "🌿 All branches."
+            )
+            await show(
+                ctx, chat.id, panel, panels.integration_detail(ctx.keys, integ, banner, where)
+            )
         return
 
     await clear_pending(ctx, uid, chat.id)
@@ -109,8 +129,10 @@ async def on_text(message: Message, ctx: AppContext) -> None:
     if pending is not None:
         await handle_pending(message, ctx, pending)
         return
-    if message.reply_to_message is not None and message.reply_to_message.from_user and (
-        message.reply_to_message.from_user.id == ctx.bot.id
+    if (
+        message.reply_to_message is not None
+        and message.reply_to_message.from_user
+        and (message.reply_to_message.from_user.id == ctx.bot.id)
     ):
         from app.bot.handlers.replies import handle_reply
 
@@ -119,7 +141,14 @@ async def on_text(message: Message, ctx: AppContext) -> None:
     if LOOKS_LIKE_TOKEN.search(message.text or ""):
         deleted = await safe_delete(ctx, message.chat.id, message.message_id)
         note = "I deleted it. " if deleted else "Please delete it and revoke it on GitHub. "
-        await message.answer(f"🛡 That looked like a GitHub token. {note}Use 🔑 <b>Login</b> in /start to connect.")
+        await message.answer(
+            f"🛡 That looked like a GitHub token. {note}Use 🔑 <b>Login</b> in /start to connect."
+        )
         return
     if is_private(message.chat):
-        await show(ctx, message.chat.id, None, await home_panel(ctx, message.from_user.id if message.from_user else 0, message.chat))
+        await show(
+            ctx,
+            message.chat.id,
+            None,
+            await home_panel(ctx, message.from_user.id if message.from_user else 0, message.chat),
+        )

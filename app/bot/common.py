@@ -30,9 +30,7 @@ def chat_label(chat: Chat) -> str:
     return "this chat" if is_private(chat) else (chat.title or "this group")
 
 
-async def show(
-    ctx: AppContext, chat_id: int, message_id: int | None, panel: panels.Panel
-) -> int:
+async def show(ctx: AppContext, chat_id: int, message_id: int | None, panel: panels.Panel) -> int:
     """Edit the panel in place (or send it if it can't be edited). Returns its message id."""
     text, markup = panel
     if message_id:

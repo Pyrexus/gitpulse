@@ -42,11 +42,7 @@ REQUEST_GROUP, REQUEST_CHANNEL = 1, 2
 # "Any admin": every required right set to False (built from the model so new
 # Bot API fields never break us).
 _NO_RIGHTS = ChatAdministratorRights(
-    **{
-        name: False
-        for name, f in ChatAdministratorRights.model_fields.items()
-        if f.is_required()
-    }
+    **{name: False for name, f in ChatAdministratorRights.model_fields.items() if f.is_required()}
 )
 
 
@@ -114,8 +110,14 @@ async def pick_repo(c: CallbackCtx) -> None:
     repo = await api.repo_by_id(c.ctx.gh, token, c.cb.int_arg(0))
     await c.show(
         panels.confirm_target(
-            c.ctx.keys, "repo", repo.id, repo.full_name, repo.private, repo.description,
-            is_private(c.chat), chat_label(c.chat),
+            c.ctx.keys,
+            "repo",
+            repo.id,
+            repo.full_name,
+            repo.private,
+            repo.description,
+            is_private(c.chat),
+            chat_label(c.chat),
         )
     )
 
@@ -138,8 +140,15 @@ async def pick_org(c: CallbackCtx) -> None:
 
 
 async def finish_create(
-    ctx: AppContext, user_id: int, panel_chat: int, panel_msg: int | None,
-    target_chat: int, kind: str, target_id: int, manual: bool = False, where: str | None = None,
+    ctx: AppContext,
+    user_id: int,
+    panel_chat: int,
+    panel_msg: int | None,
+    target_chat: int,
+    kind: str,
+    target_id: int,
+    manual: bool = False,
+    where: str | None = None,
 ) -> Integration | None:
     user = await load_user(ctx, user_id)
     await show(ctx, panel_chat, panel_msg, panels.loading("⏳ <i>Creating the webhook…</i>"))
@@ -150,8 +159,12 @@ async def finish_create(
         return None
     if result.hook_error:
         await show(
-            ctx, panel_chat, panel_msg,
-            panels.hook_failed(ctx.keys, result.hook_error, kind, target_id, allow_manual=panel_chat > 0),
+            ctx,
+            panel_chat,
+            panel_msg,
+            panels.hook_failed(
+                ctx.keys, result.hook_error, kind, target_id, allow_manual=panel_chat > 0
+            ),
         )
         return None
     integ = result.integration
@@ -160,7 +173,12 @@ async def finish_create(
         integ = await db.get_integration(s, integ.id) or integ
     if result.manual_secret:
         url = svc.webhook_url(ctx, integ.hook_key)
-        await show(ctx, panel_chat, panel_msg, panels.manual_setup(ctx.keys, integ, url, result.manual_secret))
+        await show(
+            ctx,
+            panel_chat,
+            panel_msg,
+            panels.manual_setup(ctx.keys, integ, url, result.manual_secret),
+        )
         return integ
     banner = (
         "✅ <b>Connected!</b> The webhook is live — events will appear "
@@ -168,7 +186,9 @@ async def finish_create(
         if result.created
         else "ℹ️ <b>Already connected</b> — here are its settings."
     )
-    await show(ctx, panel_chat, panel_msg, panels.integration_detail(ctx.keys, integ, banner, where))
+    await show(
+        ctx, panel_chat, panel_msg, panels.integration_detail(ctx.keys, integ, banner, where)
+    )
     return integ
 
 
@@ -179,7 +199,13 @@ async def create(c: CallbackCtx) -> None:
     dest = c.cb.arg(2, "h")
     if dest in {"h", "m"}:
         await finish_create(
-            c.ctx, c.user_id, c.chat.id, c.message_id, c.chat.id, kind, target_id,
+            c.ctx,
+            c.user_id,
+            c.chat.id,
+            c.message_id,
+            c.chat.id,
+            kind,
+            target_id,
             manual=dest == "m" and is_private(c.chat),
         )
         return
@@ -197,18 +223,35 @@ async def create(c: CallbackCtx) -> None:
         request_title=True,
     )
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📢 Choose channel" if is_channel else "👥 Choose group", request_chat=request)]],
+        keyboard=[
+            [
+                KeyboardButton(
+                    text="📢 Choose channel" if is_channel else "👥 Choose group",
+                    request_chat=request,
+                )
+            ]
+        ],
         resize_keyboard=True,
         one_time_keyboard=True,
         input_field_placeholder="Tap the button below",
     )
-    prompt = await c.ctx.bot.send_message(c.chat.id, panels.pick_chat_hint(dest), reply_markup=keyboard)
+    prompt = await c.ctx.bot.send_message(
+        c.chat.id, panels.pick_chat_hint(dest), reply_markup=keyboard
+    )
     await c.show(
-        panels.notice(c.ctx.keys, "👇 <i>Use the button under the message box to pick the chat.</i>", A.CANCEL)
+        panels.notice(
+            c.ctx.keys, "👇 <i>Use the button under the message box to pick the chat.</i>", A.CANCEL
+        )
     )
     await set_pending(
-        c.ctx, c.user_id, c.chat.id, "pick_chat", c.message_id,
-        kind=kind, target_id=target_id, prompt_id=prompt.message_id,
+        c.ctx,
+        c.user_id,
+        c.chat.id,
+        "pick_chat",
+        c.message_id,
+        kind=kind,
+        target_id=target_id,
+        prompt_id=prompt.message_id,
     )
 
 
@@ -233,10 +276,18 @@ async def on_chat_shared(message: Message, ctx: AppContext) -> None:
     title = shared.title or "that chat"
     is_channel = shared.request_id == REQUEST_CHANNEL
     async with ctx.db() as s, s.begin():
-        await db.upsert_chat(s, target_chat, "channel" if is_channel else "supergroup", shared.title)
+        await db.upsert_chat(
+            s, target_chat, "channel" if is_channel else "supergroup", shared.title
+        )
     integ = await finish_create(
-        ctx, uid, chat_id, pending.panel_message_id, target_chat,
-        str(pending.data["kind"]), int(pending.data["target_id"]), where=title,
+        ctx,
+        uid,
+        chat_id,
+        pending.panel_message_id,
+        target_chat,
+        str(pending.data["kind"]),
+        int(pending.data["target_id"]),
+        where=title,
     )
     if integ is None:
         return
@@ -252,8 +303,13 @@ async def on_chat_shared(message: Message, ctx: AppContext) -> None:
     except Exception:  # no posting rights → roll back so nothing silently fails later
         await svc.remove_integration(ctx, integ)
         await show(
-            ctx, chat_id, pending.panel_message_id,
-            panels.notice(ctx.keys, f"⚠️ I can't post in <b>{esc(title)}</b>. Add me there (as admin for channels) and try again."),
+            ctx,
+            chat_id,
+            pending.panel_message_id,
+            panels.notice(
+                ctx.keys,
+                f"⚠️ I can't post in <b>{esc(title)}</b>. Add me there (as admin for channels) and try again.",
+            ),
         )
 
 

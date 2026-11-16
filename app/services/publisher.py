@@ -172,7 +172,11 @@ class Publisher:
     ) -> int | None:
         bot, sender, chat = self.ctx.bot, self.ctx.sender, target.chat_id
         silent = target.quiet
-        reply = ReplyParameters(message_id=reply_to, allow_sending_without_reply=True) if reply_to else None
+        reply = (
+            ReplyParameters(message_id=reply_to, allow_sending_without_reply=True)
+            if reply_to
+            else None
+        )
         sent_ids: list[int] = []
         main_id: int | None = None
         is_caption = False

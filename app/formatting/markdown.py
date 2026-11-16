@@ -53,9 +53,7 @@ _NO_RESPONSE_RE = re.compile(
     r"^#{1,6}[ \t]+[^\n]+\n+[ \t]*_No response_[ \t]*(?:\n|$)", re.M | re.I
 )
 _BARE_NO_RESPONSE_RE = re.compile(r"^[ \t]*_No response_[ \t]*$", re.M | re.I)
-_DETAILS_OPEN_RE = re.compile(
-    r"<details[^>]*>\s*(?:<summary[^>]*>(.*?)</summary>)?", re.S | re.I
-)
+_DETAILS_OPEN_RE = re.compile(r"<details[^>]*>\s*(?:<summary[^>]*>(.*?)</summary>)?", re.S | re.I)
 _DETAILS_CLOSE_RE = re.compile(r"</details\s*>", re.I)
 _IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.I)
 _PICTURE_RE = re.compile(r"</?(?:picture|source)\b[^>]*>", re.I)

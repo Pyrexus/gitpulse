@@ -87,7 +87,9 @@ async def github_webhook(request: web.Request) -> web.Response:
         async with ctx.db() as s, s.begin():
             pk = None
             if event != "ping" and hook.active:
-                pk = await db.insert_delivery(s, delivery_id[:64], hook.integration_id, event, payload)
+                pk = await db.insert_delivery(
+                    s, delivery_id[:64], hook.integration_id, event, payload
+                )
             await db.touch_integration(s, hook.integration_id)
     except IntegrityError:  # integration removed in the meantime
         hooks.invalidate(key)

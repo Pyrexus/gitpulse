@@ -114,7 +114,9 @@ async def on_callback(cq: CallbackQuery, ctx: AppContext) -> None:
         await handler(c)
     except RateLimited as exc:
         minutes = int(exc.retry_in // 60) + 1
-        await c.show(panels.notice(ctx.keys, f"⏳ GitHub rate limit reached — try again in {minutes} min."))
+        await c.show(
+            panels.notice(ctx.keys, f"⏳ GitHub rate limit reached — try again in {minutes} min.")
+        )
     except GitHubError as exc:
         log.info("callback_github_error", action=cb.action, status=exc.status)
         await c.show(
@@ -163,7 +165,9 @@ async def cancel(c: CallbackCtx) -> None:
 async def login(c: CallbackCtx) -> None:
     if not is_private(c.chat):
         await c.show(
-            panels.notice(c.ctx.keys, "🔑 Log in from our private chat — never paste tokens in groups.")
+            panels.notice(
+                c.ctx.keys, "🔑 Log in from our private chat — never paste tokens in groups."
+            )
         )
         return
     msg_id = await c.show(panels.login_prompt(c.ctx.keys))
@@ -200,7 +204,9 @@ async def _device_wait(
     except asyncio.CancelledError:
         return
     except (oauth.DeviceFlowError, LoginError) as exc:
-        await show(ctx, chat.id, msg_id, panels.notice(ctx.keys, f"⚠️ GitHub login failed: {esc(exc)}"))
+        await show(
+            ctx, chat.id, msg_id, panels.notice(ctx.keys, f"⚠️ GitHub login failed: {esc(exc)}")
+        )
     finally:
         _device_tasks.pop(user_id, None)
 
@@ -240,7 +246,9 @@ async def save_login(ctx: AppContext, user_id: int, token: str, method: str) -> 
     except GitHubError as exc:
         if exc.status == 401:
             raise LoginError("GitHub rejected that token (bad credentials).") from exc
-        raise LoginError(f"Couldn't verify the token (GitHub {exc.status or 'unreachable'}).") from exc
+        raise LoginError(
+            f"Couldn't verify the token (GitHub {exc.status or 'unreachable'})."
+        ) from exc
     async with ctx.db() as s, s.begin():
         user = await db.get_or_create_user(s, user_id)
         user.github_id = ident.id

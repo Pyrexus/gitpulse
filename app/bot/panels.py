@@ -208,7 +208,10 @@ def device_prompt(keys: Keys, user_code: str, verification_uri: str) -> Panel:
         ]
     )
     return text, keys.markup(
-        [keys.copy(f"📋 Copy {user_code}", user_code), keys.url("🔗 Open GitHub", verification_uri, style="primary")],
+        [
+            keys.copy(f"📋 Copy {user_code}", user_code),
+            keys.url("🔗 Open GitHub", verification_uri, style="primary"),
+        ],
         [keys.cb("✖️ Cancel", A.CANCEL)],
     )
 
@@ -257,13 +260,21 @@ def picker(
     if query:
         lines.append(f"🔎 Filter: <code>{esc(query)}</code>")
     if items:
-        lines.append(f"<i>{len(items)} {noun if len(items) == 1 else noun + 's'} · page {page + 1}/{pages}"
-                     + (" · sorted by last push" if scope == "r" else "") + "</i>")
+        lines.append(
+            f"<i>{len(items)} {noun if len(items) == 1 else noun + 's'} · page {page + 1}/{pages}"
+            + (" · sorted by last push" if scope == "r" else "")
+            + "</i>"
+        )
     else:
-        lines.append("<i>Nothing found.</i>" if query else (
-            "<i>You don't administer any repositories with this token.</i>" if scope == "r"
-            else "<i>No organizations visible — the token may lack</i> <code>read:org</code>."
-        ))
+        lines.append(
+            "<i>Nothing found.</i>"
+            if query
+            else (
+                "<i>You don't administer any repositories with this token.</i>"
+                if scope == "r"
+                else "<i>No organizations visible — the token may lack</i> <code>read:org</code>."
+            )
+        )
     if scope == "r":
         lines.append("<i>Only repos where you're an admin are listed (webhooks need it).</i>")
 
@@ -273,9 +284,13 @@ def picker(
     if pages > 1:
         rows.append(
             [
-                keys.cb("‹ Prev", A.ADD, max(page - 1, 0), scope) if page > 0 else keys.cb("·", A.NOOP),
+                keys.cb("‹ Prev", A.ADD, max(page - 1, 0), scope)
+                if page > 0
+                else keys.cb("·", A.NOOP),
                 keys.cb(f"{page + 1}/{pages}", A.NOOP),
-                keys.cb("Next ›", A.ADD, page + 1, scope) if page < pages - 1 else keys.cb("·", A.NOOP),
+                keys.cb("Next ›", A.ADD, page + 1, scope)
+                if page < pages - 1
+                else keys.cb("·", A.NOOP),
             ]
         )
     search_row = [keys.cb("🔍 Search", A.SEARCH, scope)]
@@ -283,7 +298,8 @@ def picker(
         search_row.append(keys.cb("✖️ Clear filter", A.CLEAR_SEARCH, scope))
     rows.append(search_row)
     rows.append(
-        [keys.cb("📦 Repositories", A.ADD, 0, "r")] if scope == "o"
+        [keys.cb("📦 Repositories", A.ADD, 0, "r")]
+        if scope == "o"
         else [keys.cb("🏢 Whole organization", A.ADD, 0, "o")]
     )
     rows.append([keys.back()])
@@ -300,8 +316,14 @@ def search_prompt(keys: Keys, scope: str, in_group: bool) -> Panel:
 
 
 def confirm_target(
-    keys: Keys, kind: str, target_id: int, name: str, private_repo: bool | None,
-    description: str | None, is_private_chat: bool, destination: str,
+    keys: Keys,
+    kind: str,
+    target_id: int,
+    name: str,
+    private_repo: bool | None,
+    description: str | None,
+    is_private_chat: bool,
+    destination: str,
 ) -> Panel:
     k = "r" if kind == "repo" else "o"
     icon = "🏢" if kind == "org" else ("🔒" if private_repo else "📦")
@@ -318,7 +340,10 @@ def confirm_target(
         lines.append("Where should events go?")
         rows = [
             [keys.cb("💬 This chat", A.CREATE, k, target_id, "h", style="primary")],
-            [keys.cb("👥 A group", A.CREATE, k, target_id, "g"), keys.cb("📢 A channel", A.CREATE, k, target_id, "c")],
+            [
+                keys.cb("👥 A group", A.CREATE, k, target_id, "g"),
+                keys.cb("📢 A channel", A.CREATE, k, target_id, "c"),
+            ],
             [keys.back(A.ADD, 0, k)],
         ]
     else:
@@ -332,10 +357,14 @@ def confirm_target(
 
 def pick_chat_hint(kind: str) -> str:
     if kind == "c":
-        return ("📢 <b>Choose a channel</b> with the button below.\n"
-                "<i>Add me as an admin with “Post messages” first.</i>")
-    return ("👥 <b>Choose a group</b> with the button below.\n"
-            "<i>Add me to the group first — you need to be an admin there.</i>")
+        return (
+            "📢 <b>Choose a channel</b> with the button below.\n"
+            "<i>Add me as an admin with “Post messages” first.</i>"
+        )
+    return (
+        "👥 <b>Choose a group</b> with the button below.\n"
+        "<i>Add me to the group first — you need to be an admin there.</i>"
+    )
 
 
 def hook_failed(keys: Keys, error: str, kind: str, target_id: int, allow_manual: bool) -> Panel:
@@ -344,7 +373,9 @@ def hook_failed(keys: Keys, error: str, kind: str, target_id: int, allow_manual:
     if allow_manual:
         rows.append([keys.cb("🛠 Set up manually", A.CREATE, k, target_id, "m")])
     rows.append([keys.back(A.ADD, 0, k)])
-    return f"⚠️ <b>Couldn't create the webhook</b>\n\n{error}", InlineKeyboardMarkup(inline_keyboard=rows)
+    return f"⚠️ <b>Couldn't create the webhook</b>\n\n{error}", InlineKeyboardMarkup(
+        inline_keyboard=rows
+    )
 
 
 def manual_setup(keys: Keys, integ: Integration, url: str, secret: str) -> Panel:
@@ -391,7 +422,13 @@ def integrations_list(
             f"{' · 🔕' if integ.quiet else ''} · {status}"
         )
     rows = [
-        [keys.cb(f"{'🏢' if i.kind == 'org' else '📦'} {i.target}" + (f" → {w}" if w else ""), A.OPEN, i.id)]
+        [
+            keys.cb(
+                f"{'🏢' if i.kind == 'org' else '📦'} {i.target}" + (f" → {w}" if w else ""),
+                A.OPEN,
+                i.id,
+            )
+        ]
         for i, w in items[:20]
     ]
     rows.append([keys.cb("➕ Add", A.ADD, 0, "r", style="primary"), keys.back()])
@@ -441,12 +478,19 @@ def integration_detail(
             keys.cb("🔔 Unmute" if integ.quiet else "🔕 Quiet", A.QUIET, integ.id),
         ]
     )
-    grid.append([keys.cb("🔄 Test webhook", A.PING, integ.id), keys.cb("🗑 Remove", A.REMOVE, integ.id, style="danger")])
+    grid.append(
+        [
+            keys.cb("🔄 Test webhook", A.PING, integ.id),
+            keys.cb("🗑 Remove", A.REMOVE, integ.id, style="danger"),
+        ]
+    )
     grid.append([keys.back(A.LIST)])
     return "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=grid)
 
 
-def branch_prompt(keys: Keys, integ: Integration, in_group: bool, error: str | None = None) -> Panel:
+def branch_prompt(
+    keys: Keys, integ: Integration, in_group: bool, error: str | None = None
+) -> Panel:
     how = "<b>Reply to this message</b> with" if in_group else "Send me"
     current = integ.branch_filter or "all"
     lines = []
@@ -473,5 +517,10 @@ def remove_confirm(keys: Keys, integ: Integration) -> Panel:
     return (
         f"🗑 <b>Remove {_target_link(integ)}?</b>\n\n"
         "The GitHub webhook is deleted and events stop. Messages already sent stay.",
-        keys.markup([keys.cb("🗑 Yes, remove", A.REMOVE_YES, integ.id, style="danger"), keys.back(A.OPEN, integ.id, text="⬅️ Cancel")]),
+        keys.markup(
+            [
+                keys.cb("🗑 Yes, remove", A.REMOVE_YES, integ.id, style="danger"),
+                keys.back(A.OPEN, integ.id, text="⬅️ Cancel"),
+            ]
+        ),
     )

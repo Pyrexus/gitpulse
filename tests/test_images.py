@@ -12,7 +12,7 @@ def test_markdown_and_img_tags_in_order() -> None:
     md = (
         "first ![a](https://x.io/1.png)\n"
         f'<img width="300" alt="shot" src="{UA}" />\n'
-        "![b](<https://x.io/2.jpg> \"title\")\n"
+        '![b](<https://x.io/2.jpg> "title")\n'
         "<IMG SRC='https://x.io/3.webp'>"
     )
     assert extract_images(md) == [

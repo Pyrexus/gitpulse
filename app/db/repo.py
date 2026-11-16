@@ -44,9 +44,7 @@ async def upsert_chat(s: AsyncSession, chat_id: int, type_: str, title: str | No
 
 async def deactivate_chat(s: AsyncSession, chat_id: int) -> None:
     await s.execute(update(Chat).where(Chat.id == chat_id).values(active=False))
-    await s.execute(
-        update(Integration).where(Integration.chat_id == chat_id).values(active=False)
-    )
+    await s.execute(update(Integration).where(Integration.chat_id == chat_id).values(active=False))
 
 
 async def reactivate_chat(s: AsyncSession, chat_id: int) -> None:
@@ -57,9 +55,7 @@ async def reactivate_chat(s: AsyncSession, chat_id: int) -> None:
 async def migrate_chat(s: AsyncSession, old_id: int, new_id: int) -> None:
     old = await s.get(Chat, old_id)
     await upsert_chat(s, new_id, "supergroup", old.title if old else None)
-    await s.execute(
-        update(Integration).where(Integration.chat_id == old_id).values(chat_id=new_id)
-    )
+    await s.execute(update(Integration).where(Integration.chat_id == old_id).values(chat_id=new_id))
     await s.execute(update(Chat).where(Chat.id == old_id).values(active=False))
 
 
@@ -294,9 +290,7 @@ async def get_pending(s: AsyncSession, user_id: int, chat_id: int) -> PendingInp
 
 async def clear_pending(s: AsyncSession, user_id: int, chat_id: int) -> None:
     await s.execute(
-        delete(PendingInput).where(
-            PendingInput.user_id == user_id, PendingInput.chat_id == chat_id
-        )
+        delete(PendingInput).where(PendingInput.user_id == user_id, PendingInput.chat_id == chat_id)
     )
 
 

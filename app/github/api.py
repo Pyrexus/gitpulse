@@ -126,14 +126,14 @@ async def create_hook(
     gh: GitHub, token: str, kind: str, target: str, url: str, secret: str, events: list[str]
 ) -> int:
     path = f"/repos/{target}/hooks" if kind == "repo" else f"/orgs/{target}/hooks"
-    data = (
-        await gh.request("POST", path, token=token, json=_hook_body(url, secret, events))
-    ).data
+    data = (await gh.request("POST", path, token=token, json=_hook_body(url, secret, events))).data
     return int(data["id"])
 
 
 async def delete_hook(gh: GitHub, token: str, kind: str, target: str, hook_id: int) -> None:
-    path = f"/repos/{target}/hooks/{hook_id}" if kind == "repo" else f"/orgs/{target}/hooks/{hook_id}"
+    path = (
+        f"/repos/{target}/hooks/{hook_id}" if kind == "repo" else f"/orgs/{target}/hooks/{hook_id}"
+    )
     try:
         await gh.request("DELETE", path, token=token)
     except GitHubError as exc:
@@ -142,7 +142,11 @@ async def delete_hook(gh: GitHub, token: str, kind: str, target: str, hook_id: i
 
 
 async def ping_hook(gh: GitHub, token: str, kind: str, target: str, hook_id: int) -> None:
-    path = f"/repos/{target}/hooks/{hook_id}/pings" if kind == "repo" else f"/orgs/{target}/hooks/{hook_id}/pings"
+    path = (
+        f"/repos/{target}/hooks/{hook_id}/pings"
+        if kind == "repo"
+        else f"/orgs/{target}/hooks/{hook_id}/pings"
+    )
     await gh.request("POST", path, token=token)
 
 
@@ -182,7 +186,9 @@ async def body_html(gh: GitHub, token: str | None, api_url: str) -> str | None:
 # ── actions & releases ───────────────────────────────────────────────────────
 
 
-async def run_artifacts(gh: GitHub, token: str | None, repo: str, run_id: int) -> list[dict[str, Any]]:
+async def run_artifacts(
+    gh: GitHub, token: str | None, repo: str, run_id: int
+) -> list[dict[str, Any]]:
     data = await gh.get(
         f"/repos/{repo}/actions/runs/{run_id}/artifacts",
         token=token,

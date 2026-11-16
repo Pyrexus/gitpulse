@@ -43,6 +43,11 @@ extend-exclude = ["migrations/versions"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "ASYNC", "RUF", "S", "C4", "PIE", "RET"]
 ignore = [
+    "E501",   # handled by ruff format
+    "RUF012", # class-level constant maps
+    "S105",   # false positives on token/URL names
+    "SIM105",
+    "UP046",
     "S101",   # asserts are fine in tests
     "S311",   # random is not used for crypto
     "RUF001", # emoji / unicode in strings is intentional

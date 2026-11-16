@@ -175,7 +175,10 @@ class ArtifactService:
                     with tempfile.TemporaryDirectory(prefix="gitpulse-") as tmp:
                         out = Path(tmp) / PurePosixPath(str(asset["name"])).name
                         await self.ctx.gh.download_file(
-                            asset["url"], out, token, self.limit + 2**20,
+                            asset["url"],
+                            out,
+                            token,
+                            self.limit + 2**20,
                             accept="application/octet-stream",
                         )
                         caption = artifact_caption(repo, out.name, size, release=rel)

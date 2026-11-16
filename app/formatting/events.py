@@ -254,7 +254,11 @@ def render_review_batch(review: P | None, comments: list[P], payload: P) -> Rend
         f"{emoji} <b>{label}</b> · {repo_link(repo)}",
         _item_title(url, pr["number"], pr.get("title", "")),
         f"👤 {user_link(author)}"
-        + (f" · {len(comments)} inline comment{'s' if len(comments) != 1 else ''}" if review and comments else ""),
+        + (
+            f" · {len(comments)} inline comment{'s' if len(comments) != 1 else ''}"
+            if review and comments
+            else ""
+        ),
     ]
     segments: list[Segment] = []
     if review and (review.get("body") or "").strip():
@@ -312,7 +316,11 @@ def _commit_line(c: P, repo_url: str) -> str:
             title_html = esc(title)
     author = c.get("author") or {}
     username = author.get("username")
-    who = link(f"https://github.com/{username}", username) if username else esc(author.get("name") or "?")
+    who = (
+        link(f"https://github.com/{username}", username)
+        if username
+        else esc(author.get("name") or "?")
+    )
     return f"{link(c.get('url'), sha)} {title_html} — <i>{who}</i>"
 
 
@@ -339,8 +347,10 @@ def render_push(payloads: list[P]) -> Rendered | None:
                 commits.append(c)
 
     if last.get("deleted"):
-        header = [f"🗑 <b>Branch deleted</b> · {repo_link(repo)}:{code(branch)}",
-                  f"👤 {user_link(pusher)}"]
+        header = [
+            f"🗑 <b>Branch deleted</b> · {repo_link(repo)}:{code(branch)}",
+            f"👤 {user_link(pusher)}",
+        ]
         return Rendered(
             text="\n".join(header),
             meta=LinkMeta(repo=repo["full_name"], kind="push"),
@@ -363,9 +373,7 @@ def render_push(payloads: list[P]) -> Rendered | None:
 
     n = len(commits)
     noun = "new commit" if n == 1 else "new commits"
-    title = (
-        f"🔨 <b>{n} {noun}</b> to {repo_link(repo, short=True)}:{link(branch_url, branch)}"
-    )
+    title = f"🔨 <b>{n} {noun}</b> to {repo_link(repo, short=True)}:{link(branch_url, branch)}"
     if forced:
         title += " · ⚠️ <b>force-pushed</b>"
     lines = [_commit_line(c, repo_url) for c in commits[-MAX_COMMIT_LINES:]]
@@ -434,7 +442,9 @@ def render_workflow_run(payload: P, apk_link: str | None = None) -> Rendered | N
         where = f"🔀 {link(f'{repo_url}/pull/{pr_num}', f'PR #{pr_num}')} · 🌿 {code(branch)}"
     else:
         where = f"🌿 {link(f'{repo_url}/tree/{branch}', branch)}"
-    commit_line = f"{link(f'{repo_url}/commit/{sha}', sha[:7])} {esc(first_line(commit.get('message'), 60))}"
+    commit_line = (
+        f"{link(f'{repo_url}/commit/{sha}', sha[:7])} {esc(first_line(commit.get('message'), 60))}"
+    )
     meta_bits = [f"#{run.get('run_number', '?')}"]
     if dur := _duration(run):
         meta_bits.insert(0, f"⏱ {dur}")
@@ -446,7 +456,13 @@ def render_workflow_run(payload: P, apk_link: str | None = None) -> Rendered | N
         f"{where} · {commit_line}",
         " · ".join(meta_bits) + (f" · 👤 {user_link(actor)}" if actor else ""),
     ]
-    row = [Button("↗ Open run", url=run["html_url"], style="primary" if conclusion == "success" else "danger")]
+    row = [
+        Button(
+            "↗ Open run",
+            url=run["html_url"],
+            style="primary" if conclusion == "success" else "danger",
+        )
+    ]
     if apk_link:
         row.append(Button("⬇️ Download APK", url=apk_link, style="success"))
     return Rendered(
@@ -536,7 +552,9 @@ def artifact_caption(
             f"{link(run.get('html_url'), 'run #' + str(run.get('run_number', '?')))}"
         )
     if release:
-        lines.append(f"🚀 {link(release.get('html_url'), release.get('name') or release.get('tag_name'))}")
+        lines.append(
+            f"🚀 {link(release.get('html_url'), release.get('name') or release.get('tag_name'))}"
+        )
     return "\n".join(lines)
 
 

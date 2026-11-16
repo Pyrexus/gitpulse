@@ -52,7 +52,9 @@ class Keys:
     def __init__(self, signer: CallbackSigner) -> None:
         self.signer = signer
 
-    def cb(self, text: str, action: str, *args: object, style: str | None = None) -> InlineKeyboardButton:
+    def cb(
+        self, text: str, action: str, *args: object, style: str | None = None
+    ) -> InlineKeyboardButton:
         return InlineKeyboardButton(
             text=text, callback_data=self.signer.pack(action, *args), style=style
         )
@@ -65,7 +67,9 @@ class Keys:
     def copy(text: str, value: str) -> InlineKeyboardButton:
         return InlineKeyboardButton(text=text, copy_text=CopyTextButton(text=value[:256]))
 
-    def back(self, action: str = A.HOME, *args: object, text: str = "⬅️ Back") -> InlineKeyboardButton:
+    def back(
+        self, action: str = A.HOME, *args: object, text: str = "⬅️ Back"
+    ) -> InlineKeyboardButton:
         return self.cb(text, action, *args)
 
     @staticmethod

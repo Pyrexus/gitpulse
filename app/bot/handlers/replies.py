@@ -36,7 +36,9 @@ async def handle_reply(message: Message, ctx: AppContext) -> None:
     user = await load_user(ctx, message.from_user.id)
     token = ctx.user_token(user)
     if not token:
-        kb = ctx.keys.markup([ctx.keys.url("🔑 Log in to comment", ctx.deep_link("login"), style="success")])
+        kb = ctx.keys.markup(
+            [ctx.keys.url("🔑 Log in to comment", ctx.deep_link("login"), style="success")]
+        )
         await message.reply(
             "🔒 <b>Log in to comment</b> — your reply is posted to GitHub as you.",
             reply_markup=kb,

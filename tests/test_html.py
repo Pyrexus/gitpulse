@@ -67,8 +67,12 @@ def test_sanitize_nesting_rules() -> None:
 
 def test_sanitize_attributes() -> None:
     assert sanitize('<a href="javascript:1">x</a>') == "x"
-    assert sanitize('<a href="https://a.io" onclick="evil()">x</a>') == '<a href="https://a.io">x</a>'
-    assert sanitize("<blockquote expandable>x</blockquote>") == "<blockquote expandable>x</blockquote>"
+    assert (
+        sanitize('<a href="https://a.io" onclick="evil()">x</a>') == '<a href="https://a.io">x</a>'
+    )
+    assert (
+        sanitize("<blockquote expandable>x</blockquote>") == "<blockquote expandable>x</blockquote>"
+    )
     assert sanitize('<span class="evil">x</span>') == "x"
     assert sanitize('<span class="tg-spoiler">x</span>') == '<span class="tg-spoiler">x</span>'
 
