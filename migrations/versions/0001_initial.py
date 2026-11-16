@@ -97,6 +97,7 @@ def upgrade() -> None:
         ),
         sa.Column("repo", sa.String(160), nullable=False),
         sa.Column("number", sa.Integer),
+        sa.Column("comment_id", sa.BigInteger),
         sa.Column("kind", sa.String(16), nullable=False),
         sa.Column("thread_key", sa.String(200)),
         sa.Column("state", sa.String(16)),

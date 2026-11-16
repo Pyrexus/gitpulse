@@ -125,6 +125,7 @@ class MessageLink(Base):
     )
     repo: Mapped[str] = mapped_column(String(160))
     number: Mapped[int | None] = mapped_column(Integer)
+    comment_id: Mapped[int | None] = mapped_column(BigInteger)  # review comment threads
     kind: Mapped[str] = mapped_column(String(16))
     thread_key: Mapped[str | None] = mapped_column(String(200))
     state: Mapped[str | None] = mapped_column(String(16))
