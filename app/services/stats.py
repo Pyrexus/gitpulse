@@ -94,7 +94,8 @@ async def _contributors(
     async with ctx.db() as s:
         cached = await db.cache_get(s, key, CONTRIB_TTL)
     if cached is not None:
-        return cached.get("authors", {})
+        authors_cached: dict[str, list[list[int]]] = cached.get("authors", {})
+        return authors_cached
     delay = 1.5
     for _ in range(4):
         resp = await ctx.gh.request(

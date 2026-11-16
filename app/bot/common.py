@@ -75,11 +75,16 @@ async def touch_chat(ctx: AppContext, chat: Chat) -> None:
 
 
 async def set_pending(
-    ctx: AppContext, user_id: int, chat_id: int, kind: str, panel_id: int | None, **data: object
+    ctx: AppContext,
+    user_id: int,
+    chat_id: int,
+    pending_kind: str,
+    panel_id: int | None,
+    **data: object,
 ) -> None:
     ttl = timedelta(minutes=ctx.settings.input_ttl_minutes)
     async with ctx.db() as s, s.begin():
-        await db.set_pending(s, user_id, chat_id, kind, dict(data), panel_id, ttl)
+        await db.set_pending(s, user_id, chat_id, pending_kind, dict(data), panel_id, ttl)
 
 
 async def clear_pending(ctx: AppContext, user_id: int, chat_id: int) -> None:

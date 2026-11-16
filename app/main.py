@@ -61,7 +61,7 @@ async def run() -> None:
         settings.bot_token.get_secret_value(),
         session=session,
         default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True)
+            parse_mode=ParseMode.HTML, link_preview=LinkPreviewOptions(is_disabled=True)
         ),
     )
     engine = make_engine(settings.database_url)
