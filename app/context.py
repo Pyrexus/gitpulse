@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -34,6 +34,7 @@ class AppContext:
     bot_username: str = ""
     started_at: float = field(default_factory=time.time)
     queue: EventQueue | None = None
+    hook_cache: Any = None
 
     # ── secrets ──────────────────────────────────────────────────────────
     def user_token(self, user: User | None) -> str | None:
