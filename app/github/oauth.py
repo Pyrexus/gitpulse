@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import httpx
 
 DEVICE_CODE_URL = "https://github.com/login/device/code"
-TOKEN_URL = "https://github.com/login/oauth/access_token"  # noqa: S105 - endpoint, not a secret
+TOKEN_URL = "https://github.com/login/oauth/access_token"
 SCOPES = "repo admin:repo_hook admin:org_hook read:org read:user"
 
 

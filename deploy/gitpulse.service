@@ -1,0 +1,23 @@
+# systemd alternative to Docker — see README "Running without Docker".
+[Unit]
+Description=GitPulse Telegram GitHub bot
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gitpulse
+WorkingDirectory=/opt/gitpulse
+EnvironmentFile=/opt/gitpulse/.env
+ExecStartPre=/opt/gitpulse/.venv/bin/alembic upgrade head
+ExecStart=/opt/gitpulse/.venv/bin/python -m app
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target

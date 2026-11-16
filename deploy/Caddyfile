@@ -1,0 +1,18 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Only the endpoints Telegram and GitHub need are exposed.
+	@public path /health /telegram/webhook /github/webhook/*
+	handle @public {
+		reverse_proxy bot:8080
+	}
+	handle {
+		respond "GitPulse ⚡" 200
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+}
